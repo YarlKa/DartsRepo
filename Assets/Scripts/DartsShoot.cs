@@ -7,48 +7,52 @@ using UnityEngine.SceneManagement;
 
 public class DartsShoot : MonoBehaviour
 {
-    [SerializeField] private float speed;
+    [SerializeField]
+    private Vector2 Fors;
 
-    private Rigidbody2D myRigidBody2D;
+    private bool isActiv = true;
 
-    public bool IsReleased { get; set; }
-    public bool Hit { get; set; }
+    private Rigidbody2D rb;
+    private BoxCollider2D dartsCollider;
 
-  
-    private void Start()
+    private void Awake()
     {
-        myRigidBody2D = GetComponent<Rigidbody2D>();
-                
+        rb = GetComponent<Rigidbody2D>();
+        dartsCollider = GetComponent<BoxCollider2D>();
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0) && isActiv)
         {
-            FirDarts();
-        } 
-       
-    }
-    public void FirDarts()
-    {
-        if(!IsReleased)
-        {
-            IsReleased = true;
-            myRigidBody2D.AddForce(new Vector2(0f, speed), ForceMode2D.Impulse);
+            rb.AddForce(Fors, ForceMode2D.Impulse);
+            rb.gravityScale = 1;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D col)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(col.gameObject.CompareTag("Weel"))
+        if (!isActiv)
+            return;
+        isActiv = false;
+
+        if(collision.collider.tag == "Weel")
         {
-            transform.SetParent(col.transform);
-            myRigidBody2D.velocity = Vector2.zero;
-            myRigidBody2D.isKinematic = true;
+            rb.velocity = new Vector2(0, 0);
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            this.transform.SetParent(collision.collider.transform);
+
+            dartsCollider.offset = new Vector2(dartsCollider.offset.x, -0.4f);
+            dartsCollider.size = new Vector2(dartsCollider.size.x, 1.2f);
         }
-        else if (col.gameObject.CompareTag("Enemy"))
+        else if(collision.collider.tag == "Darts")
         {
-            /*Destroy(gameObject, 0.5f);*/
+            rb.velocity = new Vector2(rb.velocity.x, -2);
+        }
+
+        else
+        {
+            Destroy(gameObject, 2f);
         }
     }
 }
