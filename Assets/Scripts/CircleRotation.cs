@@ -7,8 +7,10 @@ public class CircleRotation : MonoBehaviour
     [System.Serializable]
     private class RotationElement
     {
+        #pragma warning disable 0649
         public float speed;
         public float Duration;
+        #pragma warning restore 0649
     }
 
     [SerializeField]
